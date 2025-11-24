@@ -9,8 +9,7 @@ from sklearn.preprocessing import StandardScaler, OneHotEncoder
 from sklearn.compose import ColumnTransformer
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 import joblib
-from src.data_preprocessing import load_data
-from src.model import DecisionTreeModel
+from src.model import DecisionTreeModel  # ← FIX: Pastikan ini lengkap dan benar
 from src.visualize import (plot_feature_importance, plot_predictions, 
                            plot_residuals, plot_decision_tree_simple)
 
@@ -79,7 +78,7 @@ def main():
     
     # Load the data
     print("\n1. Loading data...")
-    data = load_data('data/processed/rice_yield_cleaned.csv')
+    data = pd.read_csv('data/processed/rice_yield_cleaned.csv')
     print(f"Data shape: {data.shape}")
     print(f"Columns: {data.columns.tolist()}")
     
