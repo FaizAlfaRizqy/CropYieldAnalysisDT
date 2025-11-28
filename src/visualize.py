@@ -8,16 +8,17 @@ from pathlib import Path
 
 def plot_feature_importance(model, feature_names, top_n=15, save_path='reports/figures/feature_importance.png'):
     """
-    Plot feature importance dari Decision Tree model
-    
-    Args:
-        model: Trained model dengan attribute feature_importances_
-        feature_names: List nama features
-        top_n: Jumlah top features yang ditampilkan
-        save_path: Path untuk save figure
+    Plot feature importance - works for both regressor and classifier
     """
-    # Get feature importances
-    importances = model.model.feature_importances_
+    import matplotlib.pyplot as plt
+    import pandas as pd
+    from pathlib import Path
+    
+    # Get importances (works for both)
+    if hasattr(model, 'get_feature_importance'):
+        importances = model.get_feature_importance()
+    else:
+        importances = model.model.feature_importances_
     
     # Create dataframe
     feature_imp_df = pd.DataFrame({
