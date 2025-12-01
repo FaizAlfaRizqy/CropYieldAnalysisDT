@@ -188,34 +188,48 @@ def main():
     )
     model.train(X_train, y_train)
     
-    # Evaluate model
+    # Get training and testing accuracy
     print("\n5. Evaluating model...")
+    train_accuracy, test_accuracy = model.get_train_test_accuracy(X_train, y_train, X_test, y_test)
+    
+    print(f'\n📊 Model Accuracy Scores:')
+    print(f'   Training Accuracy:   {train_accuracy:.4f} ({train_accuracy*100:.2f}%)')
+    print(f'   Testing Accuracy:    {test_accuracy:.4f} ({test_accuracy*100:.2f}%)')
+    
+    # Check for overfitting
+    overfitting_gap = train_accuracy - test_accuracy
+    print(f'   Overfitting Gap:     {overfitting_gap:.4f} ({overfitting_gap*100:.2f}%)')
+    
+    if overfitting_gap > 0.1:
+        print(f'   ⚠️  WARNING: Significant overfitting detected!')
+        print(f'   Consider: increasing min_samples_split or decreasing max_depth')
+    elif overfitting_gap > 0.05:
+        print(f'   ⚠️  CAUTION: Mild overfitting detected')
+    else:
+        print(f'   ✅ Good generalization - minimal overfitting')
     
     # Predictions
-    y_pred = model.predict(X_test)
+    y_pred_train = model.predict(X_train)
+    y_pred_test = model.predict(X_test)
     y_pred_proba = model.predict_proba(X_test)
     
-    # Basic metrics
-    accuracy = accuracy_score(y_test, y_pred)
-    print(f'\n📊 Model Accuracy: {accuracy:.4f} ({accuracy*100:.2f}%)')
-    
-    # Detailed classification report
-    print("\n6. Classification Report:")
+    # Detailed classification report for TEST set
+    print("\n6. Classification Report (Test Set):")
     print("="*60)
-    report = classification_report(y_test, y_pred)
+    report = classification_report(y_test, y_pred_test)
     print(report)
     
     # Confusion Matrix
-    print("\n7. Confusion Matrix:")
+    print("\n7. Confusion Matrix (Test Set):")
     classes = sorted(y.unique())
-    cm = plot_confusion_matrix(y_test, y_pred, classes)
+    cm = plot_confusion_matrix(y_test, y_pred_test, classes)
     print(cm)
     
-    # Per-class metrics
-    print("\n8. Detailed Metrics by Class:")
+    # Per-class metrics for TEST set
+    print("\n8. Detailed Metrics by Class (Test Set):")
     from sklearn.metrics import precision_recall_fscore_support
     precision, recall, f1, support = precision_recall_fscore_support(
-        y_test, y_pred, labels=classes
+        y_test, y_pred_test, labels=classes
     )
     
     metrics_df = pd.DataFrame({
@@ -235,11 +249,14 @@ def main():
     metrics_df.to_csv('reports/classification_metrics.csv', index=False)
     print("\n✓ Classification metrics saved to: reports/classification_metrics.csv")
     
-    # Overall metrics summary
+    # Overall metrics summary (including train/test comparison)
     overall_metrics = pd.DataFrame({
-        'Metric': ['Accuracy', 'Macro Precision', 'Macro Recall', 'Macro F1'],
+        'Metric': ['Train_Accuracy', 'Test_Accuracy', 'Overfitting_Gap',
+                   'Test_Macro_Precision', 'Test_Macro_Recall', 'Test_Macro_F1'],
         'Value': [
-            accuracy,
+            train_accuracy,
+            test_accuracy,
+            overfitting_gap,
             precision.mean(),
             recall.mean(),
             f1.mean()
@@ -275,19 +292,21 @@ def main():
     print("Training completed successfully!")
     print("="*60)
     print("\n📈 Model Performance Summary:")
-    print(f"   - Overall Accuracy: {accuracy:.1%}")
-    print(f"   - Average Precision: {precision.mean():.1%}")
-    print(f"   - Average Recall: {recall.mean():.1%}")
-    print(f"   - Average F1-Score: {f1.mean():.1%}")
+    print(f"   - Training Accuracy:  {train_accuracy:.1%}")
+    print(f"   - Testing Accuracy:   {test_accuracy:.1%}")
+    print(f"   - Average Precision:  {precision.mean():.1%}")
+    print(f"   - Average Recall:     {recall.mean():.1%}")
+    print(f"   - Average F1-Score:   {f1.mean():.1%}")
+    print(f"   - Overfitting Gap:    {overfitting_gap:.1%}")
     
     # Performance interpretation
-    if accuracy >= 0.9:
+    if test_accuracy >= 0.9:
         performance = "Excellent! 🎉"
-    elif accuracy >= 0.8:
+    elif test_accuracy >= 0.8:
         performance = "Very Good! ⭐"
-    elif accuracy >= 0.7:
+    elif test_accuracy >= 0.7:
         performance = "Good 👍"
-    elif accuracy >= 0.6:
+    elif test_accuracy >= 0.6:
         performance = "Fair 😐"
     else:
         performance = "Needs Improvement 📉"

@@ -29,6 +29,12 @@ class DecisionTreeClassifierModel:
         preds = self.predict(X)
         return accuracy_score(y, preds)
     
+    def get_train_test_accuracy(self, X_train, y_train, X_test, y_test):
+        """Get both training and testing accuracy"""
+        train_accuracy = self.evaluate(X_train, y_train)
+        test_accuracy = self.evaluate(X_test, y_test)
+        return train_accuracy, test_accuracy
+    
     def get_classification_report(self, X, y):
         """Get detailed classification report"""
         preds = self.predict(X)
