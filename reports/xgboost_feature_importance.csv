@@ -1,0 +1,7 @@
+Feature,Importance,Importance_Percent,Cumulative_Importance
+Fertilizer_Used_True,0.35417268,35.417267,35.417267
+Irrigation_Used_False,0.20591556,20.591555,56.00882
+Fertilizer_Used_False,0.20424356,20.424356,76.433174
+Rainfall_mm,0.18372446,18.372446,94.80562
+Irrigation_Used_True,0.048639283,4.8639283,99.66955
+Temperature_Celsius,0.003304486,0.3304486,100.0

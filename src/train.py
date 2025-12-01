@@ -12,6 +12,7 @@ import joblib
 from src.model import DecisionTreeModel  # ← FIX: Pastikan ini lengkap dan benar
 from src.visualize import (plot_feature_importance, plot_predictions, 
                            plot_residuals, plot_decision_tree_simple)
+import argparse
 
 def preprocess_data_with_names(data):
     """
@@ -63,7 +64,17 @@ def preprocess_data_with_names(data):
     
     return X_processed, y, feature_names, preprocessor
 
+def parse_args():
+    parser = argparse.ArgumentParser(description='Train Decision Tree regressor with hyperparameters')
+    parser.add_argument('--max_depth', type=int, default=10)
+    parser.add_argument('--min_samples_split', type=int, default=20)
+    parser.add_argument('--min_samples_leaf', type=int, default=10)
+    parser.add_argument('--test_size', type=float, default=0.2)
+    parser.add_argument('--random_state', type=int, default=42)
+    return parser.parse_args()
+
 def main():
+    args = parse_args()
     print("="*60)
     print("Rice Yield Prediction - Model Training (REGRESSION)")
     print("="*60)
@@ -78,13 +89,18 @@ def main():
    
     print("\n3. Splitting data...")
     X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, random_state=42
+        X, y, test_size=args.test_size, random_state=args.random_state
     )
     print(f"Training set: {X_train.shape[0]} samples")
     print(f"Testing set: {X_test.shape[0]} samples")
     
     print("\n4. Training model...")
-    model = DecisionTreeModel(max_depth=10, min_samples_split=20, min_samples_leaf=10)
+    model = DecisionTreeModel(
+        max_depth=args.max_depth,
+        min_samples_split=args.min_samples_split,
+        min_samples_leaf=args.min_samples_leaf,
+        random_state=args.random_state
+    )
     
     model.train(X_train, y_train)
     
