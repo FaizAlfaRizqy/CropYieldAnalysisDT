@@ -378,15 +378,41 @@ def show_model_performance_page():
         st.markdown("### 📈 Model Metrics")
         metrics_df = pd.read_csv(metrics_path)
         
+        # Display as table instead of individual metrics
+        st.dataframe(
+            metrics_df.style.format({'Value': '{:.4f}'}),
+            use_container_width=True,
+            hide_index=True
+        )
+        
+        # Show key metrics in columns
+        st.markdown("### 🎯 Key Performance Indicators")
         col1, col2, col3, col4 = st.columns(4)
         
-        for i, row in metrics_df.iterrows():
-            col = [col1, col2, col3, col4][i]
-            with col:
-                st.metric(
-                    label=f"{row['Metric']} ({row['Unit']})",
-                    value=f"{row['Value']:.4f}"
-                )
+        # Extract specific metrics safely
+        train_r2 = metrics_df[metrics_df['Metric'] == 'Train_R²']['Value'].values
+        test_r2 = metrics_df[metrics_df['Metric'] == 'Test_R²']['Value'].values
+        test_mae = metrics_df[metrics_df['Metric'] == 'Test_MAE']['Value'].values
+        test_rmse = metrics_df[metrics_df['Metric'] == 'Test_RMSE']['Value'].values
+        
+        with col1:
+            if len(train_r2) > 0:
+                st.metric("Train R²", f"{train_r2[0]:.4f}", f"{train_r2[0]*100:.2f}%")
+        
+        with col2:
+            if len(test_r2) > 0:
+                st.metric("Test R²", f"{test_r2[0]:.4f}", f"{test_r2[0]*100:.2f}%")
+        
+        with col3:
+            if len(test_mae) > 0:
+                st.metric("Test MAE", f"{test_mae[0]:.4f}", "tons/ha")
+        
+        with col4:
+            if len(test_rmse) > 0:
+                st.metric("Test RMSE", f"{test_rmse[0]:.4f}", "tons/ha")
+    
+    else:
+        st.warning("⚠️ Model metrics not found. Please train the model first.")
     
     # Check if visualizations exist
     figures_path = Path('reports/figures')
